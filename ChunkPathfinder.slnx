@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="ChunkPathfinder/ChunkPathfinder.vcxproj" />
+  <Project Path="ChunkPathfinder/ChunkPathfinder.vcxproj" Id="68fb1b3a-9324-49af-a717-aa725d84525f" />
 </Solution>

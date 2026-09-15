@@ -24,6 +24,7 @@
     <ProjectGuid>{68fb1b3a-9324-49af-a717-aa725d84525f}</ProjectGuid>
     <RootNamespace>ChunkPathfinder</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Pathos</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -143,6 +144,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Types.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Pathos.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

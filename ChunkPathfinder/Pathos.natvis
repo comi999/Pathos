@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+	<Type Name="Pathos::Dir">
+		<DisplayString>{(Pathos::Dir::Type)Value}</DisplayString>
+	</Type>
+
+  <Type Name="Pathos::Coord">
+    <DisplayString>({(int)x}, {(int)y}) [{(int)i}]</DisplayString>
+  </Type>
+
+  <Type Name="Pathos::Border">
+    <DisplayString>{(Pathos::Border::Type)Value}</DisplayString>
+  </Type>
+
+</AutoVisualizer>

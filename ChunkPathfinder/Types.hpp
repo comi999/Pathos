@@ -1,8 +1,11 @@
 #pragma once
 #include <cstdint>
 #include <array>
+#include <iostream>
 #include <vector>
 #include <bitset>
+#include <queue>
+#include <map>
 
 //===========================================================================
 namespace Pathos
@@ -53,15 +56,57 @@ struct Dir
 	}
 
 	//=======================================================================
-	constexpr bool operator==(const Dir& a_Dir) const
+	constexpr bool operator==(const Dir a_Dir) const
 	{
 		return Value == a_Dir.Value;
 	}
 
 	//=======================================================================
-	constexpr bool operator!=(const Dir& a_Dir) const
+	constexpr bool operator!=(const Dir a_Dir) const
 	{
 		return Value != a_Dir.Value;
+	}
+
+	//=======================================================================
+	constexpr std::strong_ordering operator<=>(const Dir a_Dir) const
+	{
+		return Value <=> a_Dir.Value;
+	}
+
+	//=======================================================================
+	constexpr std::strong_ordering operator<=>(const Type a_Dir) const
+	{
+		return Value <=> a_Dir;
+	}
+
+	//=======================================================================
+	constexpr Dir& operator++()
+	{
+		Value = static_cast<Type>((Value + 1) % 4);
+		return *this;
+	}
+
+	//=======================================================================
+	constexpr Dir operator++(int)
+	{
+		Dir Temp = *this;
+		++(*this);
+		return Temp;
+	}
+
+	//=======================================================================
+	constexpr Dir& operator--()
+	{
+		Value = static_cast<Type>((Value + 3) % 4);
+		return *this;
+	}
+
+	//=======================================================================
+	constexpr Dir operator--(int)
+	{
+		Dir Temp = *this;
+		--(*this);
+		return Temp;
 	}
 
 	//=======================================================================
@@ -83,6 +128,11 @@ struct Dir
 	constexpr Dir GetRight() const
 	{
 		return static_cast<Type>((Value + 1) % 4);
+	}
+	
+	constexpr Dir GetNext() const
+	{
+		return  static_cast<Type>((Value + 1) % 4);
 	}
 };
 
@@ -160,15 +210,28 @@ struct Tile
 	}
 
 	//=======================================================================
-	constexpr bool operator==(const Dir& a_Dir) const
+	constexpr bool operator==(const Dir a_Dir) const
 	{
 		return Value == a_Dir.Value;
 	}
 
 	//=======================================================================
-	constexpr bool operator!=(const Dir& a_Dir) const
+	constexpr bool operator==(const Type a_Dir) const
+	{
+		return Value == a_Dir;
+	}
+
+	
+	//=======================================================================
+	constexpr bool operator!=(const Dir a_Dir) const
 	{
 		return Value != a_Dir.Value;
+	}
+
+	//=======================================================================
+	constexpr bool operator!=(const Type a_Dir) const
+	{
+		return Value != a_Dir;
 	}
 
 	//=======================================================================
@@ -233,7 +296,11 @@ struct Border
 		N0, N1, N2, N3, N4, N5, N6, N7, N8, N9, N10, N11, N12, N13, N14, N15,
 		E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13, E14, E15,
 		S0, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, S14, S15,
-		W0, W1, W2, W3, W4, W5, W6, W7, W8, W9, W10, W11, W12, W13, W14, W15
+		W0, W1, W2, W3, W4, W5, W6, W7, W8, W9, W10, W11, W12, W13, W14, W15,
+
+		First = N0,
+		Last = W15,
+		Count = 64
 	};
 
 	//=======================================================================
@@ -255,6 +322,11 @@ struct Border
 	{}
 
 	//=======================================================================
+	constexpr Border(const uint8_t a_Value)
+		: Value(static_cast<Type>(a_Value))
+	{}
+
+	//=======================================================================
 	constexpr Border& operator=(const Border& a_Border)
 	{
 		Value = a_Border.Value;
@@ -269,15 +341,94 @@ struct Border
 	}
 
 	//=======================================================================
-	constexpr bool operator==(const Border& a_Border) const
+	constexpr Border& operator=(const uint8_t a_Value)
+	{
+		Value = static_cast<Type>(a_Value);
+		return *this;
+	}
+
+	//=======================================================================
+	constexpr bool operator==(const Border a_Border) const
 	{
 		return Value == a_Border.Value;
 	}
 
 	//=======================================================================
-	constexpr bool operator!=(const Border& a_Border) const
+	constexpr bool operator==(const Type a_Border) const
+	{
+		return Value == a_Border;
+	}
+
+	//=======================================================================
+	constexpr bool operator==(const uint8_t a_Border) const
+	{
+		return Value == static_cast<Type>(a_Border);
+	}
+
+	//=======================================================================
+	constexpr bool operator!=(const Border a_Border) const
 	{
 		return Value != a_Border.Value;
+	}
+
+	//=======================================================================
+	constexpr bool operator!=(const Type a_Border) const
+	{
+		return Value != a_Border;
+	}
+
+	//=======================================================================
+	constexpr bool operator!=(const uint8_t a_Border) const
+	{
+		return Value != static_cast<Type>(a_Border);
+	}
+
+	//=======================================================================
+	constexpr std::strong_ordering operator<=>(const Border a_Border) const
+	{
+		return Value <=> a_Border.Value;
+	}
+
+	//=======================================================================
+	constexpr std::strong_ordering operator<=>(const Type a_Border) const
+	{
+		return Value <=> a_Border;
+	}
+
+	//=======================================================================
+	constexpr std::strong_ordering operator<=>(const uint8_t a_Border) const
+	{
+		return Value <=> static_cast<Type>(a_Border);
+	}
+
+	//=======================================================================
+	constexpr Border& operator++()
+	{
+		Value = static_cast<Type>((static_cast<uint8_t>(Value) + 1) % 64);
+		return *this;
+	}
+
+	//=======================================================================
+	constexpr Border operator++(int)
+	{
+		Border Temp = *this;
+		++(*this);
+		return Temp;
+	}
+
+	//=======================================================================
+	constexpr Border& operator--()
+	{
+		Value = static_cast<Type>((static_cast<uint8_t>(Value) + 63) % 64);
+		return *this;
+	}
+
+	//=======================================================================
+	constexpr Border operator--(int)
+	{
+		Border Temp = *this;
+		--(*this);
+		return Temp;
 	}
 
 	//=======================================================================
@@ -329,15 +480,27 @@ union Coord
 
 	constexpr Coord(const Border a_Border)
 	{
-		constexpr Coord Borders[] = 
+		const uint8_t Idx = static_cast<uint8_t>(a_Border.Value);
+		if (Idx < 16)
 		{
-			{ 0x0, 0x0 }, { 0x1, 0x0 }, { 0x2, 0x0 }, { 0x3, 0x0 }, { 0x4, 0x0 }, { 0x5, 0x0 }, { 0x6, 0x0 }, { 0x7, 0x0 }, { 0x8, 0x0 }, { 0x9, 0x0 }, { 0xA, 0x0 }, { 0xB, 0x0 }, { 0xC, 0x0 }, { 0xD, 0x0 }, { 0xE, 0x0 }, { 0xF, 0x0 }, 
-			{ 0xF, 0x0 }, { 0xF, 0x1 }, { 0xF, 0x2 }, { 0xF, 0x3 }, { 0xF, 0x4 }, { 0xF, 0x5 }, { 0xF, 0x6 }, { 0xF, 0x7 }, { 0xF, 0x8 }, { 0xF, 0x9 }, { 0xF, 0xA }, { 0xF, 0xB }, { 0xF, 0xC }, { 0xF, 0xD }, { 0xF, 0xE }, { 0xF, 0xF },
-			{ 0xF, 0xF }, { 0xE, 0xF }, { 0xD, 0xF }, { 0xC, 0xF }, { 0xB, 0xF }, { 0xA, 0xF }, { 0x9, 0xF }, { 0x8, 0xF }, { 0x7, 0xF }, { 0x6, 0xF }, { 0x5, 0xF }, { 0x4, 0xF }, { 0x3, 0xF }, { 0x2, 0xF }, { 0x1, 0xF }, { 0x0, 0xF },
-			{ 0x0, 0xF }, { 0x0, 0xE }, { 0x0, 0xD }, { 0x0, 0xC }, { 0x0, 0xB }, { 0x0, 0xA }, { 0x0, 0x9 }, { 0x0, 0x8 }, { 0x0, 0x7 }, { 0x0, 0x6 }, { 0x0, 0x5 }, { 0x0, 0x4 }, { 0x0, 0x3 }, { 0x0, 0x2 }, { 0x0, 0x1 }, { 0x0, 0x0 }
-		};
-
-		i = Borders[static_cast<uint8_t>(a_Border)].i;
+			x = Idx;
+			y = 0;
+		}
+		else if (Idx < 32)
+		{
+			x = 15;
+			y = Idx - 16;
+		}
+		else if (Idx < 48)
+		{
+			x = 15 - (Idx - 32);
+			y = 15;
+		}
+		else
+		{
+			x = 0;
+			y = 15 - (Idx - 48);
+		}
 	}
 
 	//=======================================================================
@@ -560,59 +723,63 @@ struct Chunk
 	//=======================================================================
 	std::vector<Portal> GetPortals() const
 	{
-		std::array<uint64_t, 64> Portals;
+		std::array<uint64_t, 16 * 16> Portals{};
 		uint8_t PortalCount = 0;
 
-		// This represents the exits from each coord given an entry direction.
-		// Index = EntryCoord.i * EntryDir;
-		std::array<uint64_t, 16 * 16 * 4> Exits{};
-		std::bitset<16 * 16 * 4> Visited{};
+		struct PFNode;
 
-		std::array<uint64_t, 16 * 16> Unvisited{};
-		uint8_t UnvisitedCount = 0;
+		std::map<uint64_t, PFNode> PFNodes;
 
-		// Iterate through all border points.
-		for (uint8_t i = 0; i < 64; ++i)
+		struct PFNode
 		{
-			const Border B = static_cast<EBorder>(i);
+			PFNode* Parents[4] = { nullptr, nullptr, nullptr, nullptr };
+		};
+
+		for (uint8_t BIdx = 0; BIdx < Border::Count; ++BIdx)
+		{
+			const Border B(BIdx);
 
 			if (!CanEnter(B))
 			{
 				Portals[PortalCount++] = 0;
-				continue; // Skip borders that cannot be entered
+				continue;
 			}
 
-			const Dir EntryDir = B.GetDir();
+			std::queue<std::pair<uint64_t, PFNode*>> OpenList;
 
-			// Start at this border tile.
-			const Coord EntryCoord(B);
+			const Coord StartCoord(B);
+			const Dir StartDir(B.GetDir()); // This is relative to border tile.
+			const uint64_t StartNode = (static_cast<uint64_t>(StartCoord.i) << 2) | static_cast<uint64_t>(StartDir.Value);
 
-			// What are the neighbouring tiles that can be exited to? (i.e. what are the portals from this tile)
-			const EDir LeftDir = EntryDir.GetLeft();
-			if (Coord MovedLeft; CanMove(EntryCoord, LeftDir, MovedLeft))
+			while (!OpenList.empty())
 			{
-				const size_t ExitIndex = static_cast<size_t>(MovedLeft.i) * 4 + static_cast<size_t>(LeftDir);
+				// Check what neighbours we can move to from this node.
+				const Dir Dir0 = NodeDir.GetNext();
+				const Dir Dir1 = Dir0.GetNext();
+				const Dir Dir2 = Dir1.GetNext();
 
-				// Check if we have entered this very tile from this direction before?
-				if (!Visited.test(ExitIndex))
+				if (Coord Dir0Coord; CanMove(NodeCoord, Dir0, Dir0Coord))
 				{
-					// Mark this tile as visited from this direction.
-					Visited.set(ExitIndex);
-
-					// Add to unvisited list.
-					Unvisited[UnvisitedCount++] = ExitIndex;
+					HandleTop(Dir0Coord, Dir0);
 				}
-				else
+
+				if (Coord Dir1Coord; CanMove(NodeCoord, Dir1, Dir1Coord))
 				{
-					// We have already visited this tile from this direction, so we can skip it.
+					HandleTop(Dir1Coord, Dir1);
+				}
+
+				if (Coord Dir2Coord; CanMove(NodeCoord, Dir2, Dir2Coord))
+				{
+					HandleTop(Dir2Coord, Dir2);
 				}
 			}
-
-			const Dir ExitBack = EntryDir.GetOpposite();
-			const Dir ExitRight = EntryDir.GetRight();
 		}
 
-		return std::vector<Portal>(Portals.begin(), Portals.begin() + PortalCount);
+		std::vector<Portal> Collapsed;
+
+		// ... Collapse the portals into a vector of Portal structs
+
+		return Collapsed;
 	}
 };
 
